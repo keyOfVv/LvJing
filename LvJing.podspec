@@ -27,7 +27,7 @@ and, behind all, mathematics that really shines.
 Have fun.
                        DESC
 
-  s.homepage         = 'https://github.com/Ke Yang/LvJing'
+  s.homepage         = 'https://github.com/keyOfVv/LvJing'
   # s.screenshots     = 'www.example.com/screenshots_1', 'www.example.com/screenshots_2'
   s.license          = { :type => 'MIT', :file => 'LICENSE' }
   s.author           = { 'Ke Yang' => 'ofveravi@gmail.com' }
