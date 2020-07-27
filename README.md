@@ -5,7 +5,7 @@
 [![License](https://img.shields.io/cocoapods/l/LvJing.svg?style=flat)](https://cocoapods.org/pods/LvJing)
 [![Platform](https://img.shields.io/cocoapods/p/LvJing.svg?style=flat)](https://cocoapods.org/pods/LvJing)
 
-LvJing is a minimum graphic filter kernel based on Metal, it offers extensible interface and protocol for inheritance and assembling. The architecture is inspired by [Metal by Tutorials (Caroline Begbie & Marius Horga, raywenderlich.com)](https://store.raywenderlich.com/products/metal-by-tutorials) and famous-big-brother [GPUImage](https://github.com/BradLarson/GPUImage). LvJing merely acts as a carriage of Metal shading codes, it's mathematics and, behind all, your creativity  that really shines.
+LvJing is a minimum graphic filter kernel based on Metal, it offers extensible interface and protocol for inheritance and assembling. The architecture is inspired by [Metal by Tutorials (Caroline Begbie & Marius Horga, raywenderlich.com)](https://store.raywenderlich.com/products/metal-by-tutorials) and famous-big-brother [GPUImage](https://github.com/BradLarson/GPUImage). LvJing merely acts as a carriage of Metal shading codes, it's mathematics and, behind all, your creativity that really shine.
 Have fun.
 
 ## Example
@@ -16,7 +16,7 @@ Example contains a single view demonstrating a binary filter tree consists of se
 
 ### Write your own filter?
 
-Let's build a gamma filer with its own MSL:
+Let's build a gamma filter with its own MSL:
 
 ```C++
 // Gamma.metal
@@ -147,7 +147,7 @@ struct BinaryTreePreview: View {
 
 * Swift ONLY
 * iOS 9.0+
-* macOS 10.15.5 (at least)
+* macOS 10.15.5
 * Catalyst compatible
 
 ## Installation
