@@ -8,7 +8,7 @@
 
 Pod::Spec.new do |s|
   s.name             = 'LvJing'
-  s.version          = '0.1'
+  s.version          = '0.1.1'
   s.summary          = 'Filter kernel based on Metal.'
 
 # This description is used to generate tags and improve search results.
