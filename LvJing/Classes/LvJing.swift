@@ -107,7 +107,7 @@ open class LvJing: RendererDelegate, ChainableFiltering {
       // overriding point
    }
    
-   public func process() {
+   open func process() {
       #if SDK_DEBUG
 //      let startAt = Date()
 //      defer {
