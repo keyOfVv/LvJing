@@ -1,0 +1,6 @@
+framework module Pods_LvJing_Example {
+  umbrella header "Pods-LvJing_Example-umbrella.h"
+
+  export *
+  module * { export * }
+}
