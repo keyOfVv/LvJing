@@ -12,14 +12,14 @@ public class InputPlaceholder: ChainableFiltering {
    public var froms: [ChainableFiltering] = [] {
       willSet {
          if !newValue.isEmpty {
-            fatalError("占位节点不允许设置上游节点")
+            fatalError("InputPlaceholder can only act as a upstream node.")
          }
       }
    }
    
    public var inputs: [MTLTexture?] = [] {
       willSet {
-         fatalError("占位节点不允许设置输入材质")
+         fatalError("InputPlaceholder can only act as a upstream node.")
       }
    }
    
@@ -28,7 +28,6 @@ public class InputPlaceholder: ChainableFiltering {
    public weak var to: ChainableFiltering?
    
    public var shouldFlipOutputTexture: Bool {
-      // 避免下游节点的材质翻转
       return true
    }
    
