@@ -9,6 +9,11 @@ import MetalKit
 
 public class InputPlaceholder: ChainableFiltering {
    
+   static let textureLoader: MTKTextureLoader =
+      MTKTextureLoader(device:
+         Renderer.device
+            ?? MTLCreateSystemDefaultDevice()!)
+   
    public var froms: [ChainableFiltering] = [] {
       willSet {
          if !newValue.isEmpty {
@@ -23,32 +28,19 @@ public class InputPlaceholder: ChainableFiltering {
       }
    }
    
-   public var output: MTLTexture?
+   public private(set) var output: MTLTexture?
    
    public weak var to: ChainableFiltering?
    
-   public var shouldFlipOutputTexture: Bool {
-      return true
-   }
-   
-   public init(cgImage: CGImage) {
-      let textureLoader = MTKTextureLoader(
-         device: Renderer.device ?? MTLCreateSystemDefaultDevice()!)
-      output = try! textureLoader.newTexture(
-         cgImage: cgImage,
-         options: defaultTextureLoaderOptions)
-   }
-   
-   deinit {
-      #if SDK_DEBUG
-//      dog("\(self) DESTROIED")
-      #endif
-   }
+   public init() {}
    
    public func process() {
       // do nothing
    }
    
+   public func clear() {
+      output = nil
+   }
 }
 
 extension InputPlaceholder {
@@ -64,5 +56,46 @@ extension InputPlaceholder {
             .SRGB: false
          ]
       }
+   }
+}
+
+extension InputPlaceholder {
+   
+   @discardableResult
+   public static func => (lhs: CGImage, rhs: InputPlaceholder) -> InputPlaceholder {
+      rhs.output = try! textureLoader.newTexture(
+         cgImage: lhs,
+         options: rhs.defaultTextureLoaderOptions)
+      return rhs
+   }
+   
+   @discardableResult
+   public static func => (lhs: CVPixelBuffer, rhs: InputPlaceholder) -> InputPlaceholder {
+      CVPixelBufferLockBaseAddress(lhs, CVPixelBufferLockFlags.readOnly)
+      let w = CVPixelBufferGetWidth(lhs)
+      let h = CVPixelBufferGetHeight(lhs)
+      let format = MTLPixelFormat.bgra8Unorm
+      var textureRef: CVMetalTexture?
+      var textureCache: CVMetalTextureCache!
+      CVMetalTextureCacheCreate(
+         kCFAllocatorDefault,
+         nil,
+         Renderer.device,
+         nil,
+         &textureCache)
+      CVMetalTextureCacheCreateTextureFromImage(
+         nil,
+         textureCache,
+         lhs,
+         nil,
+         format,
+         w,
+         h,
+         0,
+         &textureRef)
+      let texture = CVMetalTextureGetTexture(textureRef!)
+      rhs.output = texture
+      CVPixelBufferUnlockBaseAddress(lhs, CVPixelBufferLockFlags.readOnly)
+      return rhs
    }
 }

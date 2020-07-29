@@ -79,11 +79,11 @@ struct BinaryTreePreview: View {
       .onAppear {
          self.originImageA = loadImage(
             url: Bundle.main.url(forResource: "base", withExtension: "jpg")!)!
-         self.inputA = InputPlaceholder(cgImage: self.originImageA!)
+         self.inputA = InputPlaceholder()
          
          self.originImageB = loadImage(
             url: Bundle.main.url(forResource: "desert", withExtension: "jpg")!)!
-         self.inputB = InputPlaceholder(cgImage: self.originImageB!)
+         self.inputB = InputPlaceholder()
          
          let resolution = self.originImageA.size
          self.bufferPool = makePool(resolution: resolution)
@@ -111,9 +111,9 @@ struct BinaryTreePreview: View {
    func buildUp() {
       print("build up")
       
-      self.inputA +> self.alphaFilterA +> self.alphaFilterB +> self.terminal
+      self.originImageA => self.inputA +> self.alphaFilterA +> self.alphaFilterB +> self.terminal
       
-      self.inputB +> self.betaFilterA +> self.betaFilterB +> self.terminal
+      self.originImageB => self.inputB +> self.betaFilterA +> self.betaFilterB +> self.terminal
    }
    
    func breakDown() {

@@ -112,12 +112,12 @@ struct BinaryTreePreview: View {
    @State private var finalOuput: CGImage!
 
    func buildUp() {
-      self.inputA = InputPlaceholder(cgImage: self.originImageA!)
-      self.inputB = InputPlaceholder(cgImage: self.originImageB!)
+      self.inputA = InputPlaceholder()
+      self.inputB = InputPlaceholder()
       // alpha branch
-      self.inputA +> self.alphaFilterA +> self.alphaFilterB +> self.terminal
+      self.originImageA => self.inputA +> self.alphaFilterA +> self.alphaFilterB +> self.terminal
       // beta branch
-      self.inputB +> self.betaFilterA +> self.betaFilterB +> self.terminal
+      self.originImageB => self.inputB +> self.betaFilterA +> self.betaFilterB +> self.terminal
    }
 
    func process() {
@@ -132,8 +132,6 @@ struct BinaryTreePreview: View {
       self.terminal.propagate()
       // draw final image into buffer;
       self.terminal => buffer!
-      // get output;
-      self.finalOuput = CGImage.make(pixelBuffer: buffer!)
       // do what you want with it...
    }
 

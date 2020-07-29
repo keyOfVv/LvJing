@@ -40,15 +40,6 @@ open class LvJing: RendererDelegate, ChainableFiltering {
       return render.output
    }
    
-   open var shouldFlipOutputTexture: Bool {
-      if isEntrance {
-         return false
-      }
-      else {
-         return !froms.first!.shouldFlipOutputTexture
-      }
-   }
-   
    public var defaultSamplerState: MTLSamplerState
    
    /// Create a filter;
@@ -92,12 +83,6 @@ open class LvJing: RendererDelegate, ChainableFiltering {
       render.delegate = self
    }
    
-   deinit {
-//      #if SDK_DEBUG
-//      dog("\(self) DESTROIED")
-//      #endif
-   }
-   
    open func setFragmentSamplerStateFor(encoder: MTLRenderCommandEncoder) {
       encoder.setFragmentSamplerState(defaultSamplerState, index: 0)
       // overriding point
@@ -108,12 +93,6 @@ open class LvJing: RendererDelegate, ChainableFiltering {
    }
    
    open func process() {
-      #if SDK_DEBUG
-//      let startAt = Date()
-//      defer {
-//         Bench.default.mark(x: Date().timeIntervalSince(startAt), for: "\(#function)")
-//      }
-      #endif
       if !self.isEntrance {
          inputs.removeAll()
          for from in froms {
@@ -153,7 +132,7 @@ extension LvJing {
 
 // MARK: - Operations
 
-infix operator =>
+infix operator =>: AdditionPrecedence
 infix operator +>: AdditionPrecedence
 
 extension LvJing {
@@ -189,7 +168,8 @@ extension LvJing {
    /// - Returns: Downstream filter;
    @discardableResult
    public static func +> (lhs: CGImage, rhs: LvJing) -> LvJing {
-      let placeholder = InputPlaceholder(cgImage: lhs)
+      let placeholder = InputPlaceholder()
+      lhs => placeholder
       return placeholder +> rhs
    }
    
@@ -205,27 +185,45 @@ extension LvJing {
       let ciImageOptions = [
          CIImageOption.colorSpace: lhs.colorspace
       ]
-      if lhs.shouldFlipOutputTexture {
-         var ciImage: CIImage
-         if #available(iOS 11.0, *) {
-            ciImage = CIImage(
-               mtlTexture: outputTexture,
-               options: ciImageOptions)!
-               .oriented(CGImagePropertyOrientation.downMirrored)
-         } else {
-            ciImage = CIImage(
-               mtlTexture: outputTexture,
-               options: ciImageOptions)!
-               .oriented(forExifOrientation: 4)
-         }
-         lhs.context.render(ciImage, to: rhs)
-      }
-      else {
-         let ciImage = CIImage(
+      var ciImage: CIImage
+      if #available(iOS 11.0, *) {
+         ciImage = CIImage(
             mtlTexture: outputTexture,
             options: ciImageOptions)!
-            .oriented(forExifOrientation: 1)
-         lhs.context.render(ciImage, to: rhs)
+            .oriented(CGImagePropertyOrientation.downMirrored)
+      } else {
+         ciImage = CIImage(
+            mtlTexture: outputTexture,
+            options: ciImageOptions)!
+            .oriented(forExifOrientation: 4)
       }
+      lhs.context.render(ciImage, to: rhs)
+   }
+}
+
+extension MTLClearColor {
+   
+   public var uiColor: UIColor {
+      return UIColor(
+         red: CGFloat(red),
+         green: CGFloat(green),
+         blue: CGFloat(blue),
+         alpha: CGFloat(alpha))
+   }
+}
+
+extension UIColor {
+   
+   public var mtlColor: MTLClearColor {
+      var r: CGFloat = 0.0
+      var g: CGFloat = 0.0
+      var b: CGFloat = 0.0
+      var a: CGFloat = 1.0
+      getRed(&r, green: &g, blue: &b, alpha: &a)
+      return MTLClearColor(
+         red: Double(r),
+         green: Double(g),
+         blue: Double(b),
+         alpha: Double(a))
    }
 }
