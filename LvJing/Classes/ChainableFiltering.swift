@@ -17,8 +17,6 @@ public protocol ChainableFiltering: class {
 
    var output: MTLTexture? { get }
    
-   var shouldFlipOutputTexture: Bool { get }
-   
    var isEntrance: Bool { get }
    
    var isTerminal: Bool { get }
