@@ -57,7 +57,7 @@ open class LvJing: RendererDelegate, ChainableFiltering {
    {
       self.resolution = resolution
       #if targetEnvironment(macCatalyst)
-      let screenScale = CGFloat(1.0)
+      let screenScale = UIScreen.main.scale
       #else
       let screenScale = UIScreen.main.scale
       #endif
