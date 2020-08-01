@@ -80,17 +80,17 @@ extension ChainableFiltering {
       }
    }
    
-   public func disconnect() {
-      if isEntrance {
-         self.froms.removeAll()
-         self.to = nil
-      }
-      else {
-         for from in froms {
-            from.disconnect()
-         }
-         self.froms.removeAll()
-         self.to = nil
-      }
-   }
+//   public func disconnect() {
+//      if isEntrance {
+//         self.froms.removeAll()
+//         self.to = nil
+//      }
+//      else {
+//         for from in froms {
+//            from.disconnect()
+//         }
+//         self.froms.removeAll()
+//         self.to = nil
+//      }
+//   }
 }

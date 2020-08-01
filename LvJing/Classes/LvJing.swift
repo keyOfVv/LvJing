@@ -101,6 +101,20 @@ open class LvJing: RendererDelegate, ChainableFiltering {
       }
       view.draw()
    }
+   
+   open func disconnect() {
+      if isEntrance {
+         self.froms.removeAll()
+         self.to = nil
+      }
+      else {
+         for from in froms {
+            from.disconnect()
+         }
+         self.froms.removeAll()
+         self.to = nil
+      }
+   }
 }
 
 extension LvJing {

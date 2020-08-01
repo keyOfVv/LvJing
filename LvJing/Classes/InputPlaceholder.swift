@@ -41,6 +41,11 @@ public class InputPlaceholder: ChainableFiltering {
    public func clear() {
       output = nil
    }
+   
+   public func disconnect() {
+      self.output = nil
+      self.to = nil
+   }
 }
 
 extension InputPlaceholder {
