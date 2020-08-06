@@ -119,10 +119,13 @@ open class LvJing: RendererDelegate, ChainableFiltering {
 
 extension LvJing {
    
-   public static func createSamplerState(maxAnisotropy: Int) -> MTLSamplerState {
+   public static func createSamplerState(
+      maxAnisotropy: Int,
+      addressMode: MTLSamplerAddressMode = .clampToZero) -> MTLSamplerState
+   {
       let descriptor = MTLSamplerDescriptor()
-      descriptor.sAddressMode = .clampToZero
-      descriptor.tAddressMode = .clampToZero
+      descriptor.sAddressMode = addressMode
+      descriptor.tAddressMode = addressMode
       descriptor.mipFilter = .linear
       descriptor.minFilter = .linear
       descriptor.magFilter = .linear
