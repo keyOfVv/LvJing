@@ -103,7 +103,7 @@ open class LvJing: RendererDelegate, ChainableFiltering {
          for from in froms {
             // take over output from upstream filter
             inputs.append(from.output)
-            from.output = nil
+//            from.output = nil
          }
       }
       view.draw()
