@@ -15,7 +15,7 @@ public protocol ChainableFiltering: class {
    
    var inputs: [MTLTexture?] { set get }
 
-   var output: MTLTexture? { get }
+   var output: MTLTexture? { set get }
    
    var isEntrance: Bool { get }
    
