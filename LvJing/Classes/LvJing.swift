@@ -37,7 +37,12 @@ open class LvJing: RendererDelegate, ChainableFiltering {
    }
    
    public var output: MTLTexture? {
-      return render.output
+      set {
+         render.output = newValue
+      }
+      get {
+         return render.output
+      }
    }
    
    public var defaultSamplerState: MTLSamplerState
@@ -96,24 +101,35 @@ open class LvJing: RendererDelegate, ChainableFiltering {
       if !self.isEntrance {
          inputs.removeAll()
          for from in froms {
+            // take over output from upstream filter
             inputs.append(from.output)
+            from.output = nil
          }
       }
       view.draw()
+      // clear up inputs
+      inputs.removeAll()
+      #if SDK_DEBUG
+      assert(inputs.isEmpty)
+      #endif
    }
    
    open func disconnect() {
-      if isEntrance {
-         self.froms.removeAll()
-         self.to = nil
-      }
-      else {
+      if !isEntrance {
          for from in froms {
             from.disconnect()
          }
-         self.froms.removeAll()
-         self.to = nil
       }
+      self.froms.removeAll()
+      self.to = nil
+      self.inputs.removeAll()
+      self.output = nil
+      #if SDK_DEBUG
+      assert(self.froms.isEmpty)
+      assert(self.to == nil)
+      assert(self.inputs.isEmpty)
+      assert(self.output == nil)
+      #endif
    }
 }
 
@@ -215,6 +231,10 @@ extension LvJing {
             .oriented(forExifOrientation: 4)
       }
       lhs.context.render(ciImage, to: rhs)
+      lhs.to = nil
+      #if SDK_DEBUG
+      assert(lhs.to == nil)
+      #endif
    }
 }
 

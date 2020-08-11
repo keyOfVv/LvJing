@@ -28,7 +28,7 @@ public class InputPlaceholder: ChainableFiltering {
       }
    }
    
-   public private(set) var output: MTLTexture?
+   public var output: MTLTexture?
    
    public weak var to: ChainableFiltering?
    
