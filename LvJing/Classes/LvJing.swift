@@ -17,6 +17,10 @@ open class LvJing: RendererDelegate, ChainableFiltering {
    
    private let render: Renderer
    
+   public class var sharedDevice: MTLDevice {
+      return Renderer.device
+   }
+   
    private let colorspace: CGColorSpace
    
    // MARK: ChainableFiltering
@@ -27,22 +31,12 @@ open class LvJing: RendererDelegate, ChainableFiltering {
    
    public weak var to: ChainableFiltering?
    
-   public var inputs: [MTLTexture?] {
-      set {
-         render.inputs = newValue
-      }
-      get {
-         return render.inputs
-      }
+   open var inputs: [MTLTexture?] {
+      return froms.map{ $0.output }
    }
    
    public var output: MTLTexture? {
-      set {
-         render.output = newValue
-      }
-      get {
-         return render.output
-      }
+      return render.output
    }
    
    public var defaultSamplerState: MTLSamplerState
@@ -61,11 +55,7 @@ open class LvJing: RendererDelegate, ChainableFiltering {
       fragmentFunctionName: String)
    {
       self.resolution = resolution
-      #if targetEnvironment(macCatalyst)
       let screenScale = UIScreen.main.scale
-      #else
-      let screenScale = UIScreen.main.scale
-      #endif
       let frame = CGRect(
          x: 0, y: 0,
          width: resolution.width / screenScale,
@@ -98,38 +88,19 @@ open class LvJing: RendererDelegate, ChainableFiltering {
    }
    
    open func process() {
-      if !self.isEntrance {
-         inputs.removeAll()
-         for from in froms {
-            // take over output from upstream filter
-            inputs.append(from.output)
-//            from.output = nil
-         }
-      }
+      render.inputs = self.inputs
       view.draw()
-      // clear up inputs
-      inputs.removeAll()
-      #if SDK_DEBUG
-      assert(inputs.isEmpty)
-      #endif
+      render.inputs = []
    }
    
    open func disconnect() {
-      if !isEntrance {
-         for from in froms {
-            from.disconnect()
-         }
-      }
-      self.froms.removeAll()
-      self.to = nil
-      self.inputs.removeAll()
-      self.output = nil
-      #if SDK_DEBUG
-      assert(self.froms.isEmpty)
-      assert(self.to == nil)
-      assert(self.inputs.isEmpty)
-      assert(self.output == nil)
-      #endif
+      froms.removeAll()
+      to = nil
+   }
+   
+   open func clear() {
+      render.output = nil
+      view.releaseDrawables()
    }
 }
 

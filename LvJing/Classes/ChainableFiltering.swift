@@ -13,13 +13,15 @@ public protocol ChainableFiltering: class {
    
    var to: ChainableFiltering? { set get }
    
-   var inputs: [MTLTexture?] { set get }
+   var inputs: [MTLTexture?] { get }
 
-   var output: MTLTexture? { set get }
+   var output: MTLTexture? { get }
    
    var isEntrance: Bool { get }
    
    var isTerminal: Bool { get }
+   
+   var numberOfUpstreamFilters: Int { get }
 
    func findEntrances() -> [ChainableFiltering]
  
@@ -30,9 +32,28 @@ public protocol ChainableFiltering: class {
    func propagate()
    
    func disconnect()
+   
+   func breakDown()
+   
+   func clear()
+   
+   func clearAll()
 }
 
 extension ChainableFiltering {
+   
+   public var numberOfUpstreamFilters: Int {
+      if isEntrance {
+         return 1
+      }
+      else {
+         var n = 0
+         for from in froms {
+            n += from.numberOfUpstreamFilters
+         }
+         return n
+      }
+   }
    
    public func propagate() {
       if isEntrance {
@@ -80,17 +101,23 @@ extension ChainableFiltering {
       }
    }
    
-//   public func disconnect() {
-//      if isEntrance {
-//         self.froms.removeAll()
-//         self.to = nil
-//      }
-//      else {
-//         for from in froms {
-//            from.disconnect()
-//         }
-//         self.froms.removeAll()
-//         self.to = nil
-//      }
-//   }
+   public func breakDown() {
+      if !isEntrance {
+         for from in froms {
+            from.breakDown()
+         }
+      }
+      disconnect()
+   }
+   
+   public func clearAll() {
+      if !isEntrance {
+         for from in froms {
+            from.clearAll()
+         }
+      }
+      clear()
+   }
+   
+
 }
