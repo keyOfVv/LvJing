@@ -22,10 +22,8 @@ public class InputPlaceholder: ChainableFiltering {
       }
    }
    
-   public var inputs: [MTLTexture?] = [] {
-      willSet {
-         fatalError("InputPlaceholder can only act as a upstream node.")
-      }
+   public var inputs: [MTLTexture?] {
+      return []
    }
    
    public var output: MTLTexture?
