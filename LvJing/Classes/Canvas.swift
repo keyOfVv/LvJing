@@ -27,7 +27,8 @@ class Canvas {
    init(
       library: MTLLibrary,
       vertexFunctionName: String,
-      fragmentFunctionName: String)
+      fragmentFunctionName: String,
+      enableAutoBlend: Bool)
    {
       let device = Renderer.device!
       vertexBuffer = device.makeBuffer(
@@ -41,13 +42,15 @@ class Canvas {
       pipelineState = Self.buildPipelineState(
          library: library,
          vertexFunctionName: vertexFunctionName,
-         fragmentFunctionName: fragmentFunctionName)
+         fragmentFunctionName: fragmentFunctionName,
+         enableAutoBlend: enableAutoBlend)
    }
    
    private static func buildPipelineState(
       library: MTLLibrary,
       vertexFunctionName: String,
-      fragmentFunctionName: String) -> MTLRenderPipelineState
+      fragmentFunctionName: String,
+      enableAutoBlend: Bool) -> MTLRenderPipelineState
    {
       let vertexFunction = library.makeFunction(name: vertexFunctionName)
       let fragmentFunction = library.makeFunction(name: fragmentFunctionName)
@@ -57,6 +60,17 @@ class Canvas {
       pipelineDescriptor.vertexFunction = vertexFunction
       pipelineDescriptor.fragmentFunction = fragmentFunction
       pipelineDescriptor.colorAttachments[0].pixelFormat = .bgra8Unorm
+      
+      if enableAutoBlend {
+         pipelineDescriptor.colorAttachments[0].isBlendingEnabled = true
+         pipelineDescriptor.colorAttachments[0].rgbBlendOperation = .add
+         pipelineDescriptor.colorAttachments[0].alphaBlendOperation = .add
+         pipelineDescriptor.colorAttachments[0].sourceRGBBlendFactor = .sourceAlpha
+         pipelineDescriptor.colorAttachments[0].sourceAlphaBlendFactor = .sourceAlpha
+         pipelineDescriptor.colorAttachments[0].destinationRGBBlendFactor = .oneMinusSourceAlpha
+         pipelineDescriptor.colorAttachments[0].destinationAlphaBlendFactor = .oneMinusSourceAlpha
+      }
+      
       do {
          pipelineState = try Renderer.device
             .makeRenderPipelineState(descriptor: pipelineDescriptor)
