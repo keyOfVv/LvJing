@@ -23,6 +23,8 @@ open class LvJing: RendererDelegate, ChainableFiltering {
    
    private let colorspace: CGColorSpace
    
+   private let canvas: Canvas
+   
    // MARK: ChainableFiltering
    
    private let context: CIContext
@@ -41,6 +43,12 @@ open class LvJing: RendererDelegate, ChainableFiltering {
    
    public var defaultSamplerState: MTLSamplerState
    
+   public var waitUntilCompleted: Bool = false {
+      willSet {
+         render.waitUntilCompleted = newValue
+      }
+   }
+   
    /// Create a filter;
    /// - Parameters:
    ///   - resolution: size of output iamge;
@@ -52,7 +60,8 @@ open class LvJing: RendererDelegate, ChainableFiltering {
       resolution: CGSize,
       libraryURL: URL? = nil,
       vertexFunctionName: String,
-      fragmentFunctionName: String)
+      fragmentFunctionName: String,
+      enableAutoBlend: Bool = false)
    {
       self.resolution = resolution
       let screenScale = UIScreen.main.scale
@@ -65,17 +74,55 @@ open class LvJing: RendererDelegate, ChainableFiltering {
       view.isPaused = true
       view.framebufferOnly = false
       
-      render = Renderer(
-         metalView: view,
-         libraryURL: libraryURL,
+      render = Renderer(metalView: view)
+      
+      var library: MTLLibrary!
+      if let path = libraryURL?.path {
+         library = try! Self.sharedDevice.makeLibrary(filepath: path)
+      }
+      else {
+         library = Self.sharedDevice.makeDefaultLibrary()!
+      }
+      
+      canvas = Canvas(
+         library: library,
          vertexFunctionName: vertexFunctionName,
-         fragmentFunctionName: fragmentFunctionName)
+         fragmentFunctionName: fragmentFunctionName,
+         enableAutoBlend: enableAutoBlend)
+      
+      render.renderPipelineState = canvas.pipelineState
+      render.waitUntilCompleted = waitUntilCompleted
 
       colorspace = CGColorSpaceCreateDeviceRGB()
       context = CIContext()
       froms = []
       defaultSamplerState = Self.createSamplerState(maxAnisotropy: 8)
       render.delegate = self
+   }
+   
+   open func numberOfVertexBuffers() -> Int {
+      return 1
+   }
+   
+   open func vertexBufferFor(indexAt index: Int) -> MTLBuffer {
+      switch index {
+      case 0:
+         return canvas.vertexBuffer
+      default:
+         fatalError()
+      }
+   }
+      
+   open func indexCount() -> Int {
+      return canvas.vertexIndices.count
+   }
+   
+   open func indexBuffer() -> MTLBuffer {
+      return canvas.indexBuffer
+   }
+   
+   open func setVertexBytesFor(encoder: MTLRenderCommandEncoder) {
+      // overriding point
    }
    
    open func setFragmentSamplerStateFor(encoder: MTLRenderCommandEncoder) {

@@ -8,28 +8,34 @@
 import MetalKit
 
 protocol RendererDelegate: class {
+
+   func numberOfVertexBuffers() -> Int
+   func vertexBufferFor(indexAt index: Int) -> MTLBuffer
+   func indexCount() -> Int
+   func indexBuffer() -> MTLBuffer
+   
+   func setVertexBytesFor(encoder: MTLRenderCommandEncoder)
    func setFragmentSamplerStateFor(encoder: MTLRenderCommandEncoder)
    func setFragmentBytesFor(encoder: MTLRenderCommandEncoder)
 }
 
 class Renderer: NSObject {
-   static var device: MTLDevice!
-   static var commandQueue: MTLCommandQueue!
    
-   private let canvas: Canvas
+   static var device: MTLDevice!
+   
+   static var commandQueue: MTLCommandQueue!
    
    var inputs: [MTLTexture?] = []
    
    var output: MTLTexture?
    
+   var renderPipelineState: MTLRenderPipelineState!
+   
+   var waitUntilCompleted: Bool = false
+   
    weak var delegate: RendererDelegate?
    
-   init(
-      metalView: MTKView,
-      libraryURL: URL? = nil,
-      vertexFunctionName: String,
-      fragmentFunctionName: String)
-   {
+   init(metalView: MTKView) {
       if Renderer.device == nil {
          let device = MTLCreateSystemDefaultDevice()!
          Renderer.device = device
@@ -38,22 +44,11 @@ class Renderer: NSObject {
       
       metalView.device = Renderer.device
       
-      var library: MTLLibrary!
-      if let path = libraryURL?.path {
-         library = try! Self.device.makeLibrary(filepath: path)
-      }
-      else {
-         library = Self.device.makeDefaultLibrary()!
-      }
-      
-      canvas = Canvas(
-         library: library,
-         vertexFunctionName: vertexFunctionName,
-         fragmentFunctionName: fragmentFunctionName)
-      
       super.init()
-      
-      metalView.clearColor = MTLClearColor(red: 0, green: 0, blue: 0, alpha: 0)
+      metalView.clearColor = MTLClearColor(red: 0,
+                                           green: 0,
+                                           blue: 0,
+                                           alpha: 0)
       metalView.delegate = self
    }
 }
@@ -74,22 +69,26 @@ extension Renderer: MTKViewDelegate {
             .makeRenderCommandEncoder(descriptor: descriptor)
          else { return }
       
-      renderEncoder.setRenderPipelineState(canvas.pipelineState)
+      renderEncoder.setRenderPipelineState(renderPipelineState)
       delegate?.setFragmentSamplerStateFor(encoder: renderEncoder)
       
-      renderEncoder.setVertexBuffer(
-         canvas.vertexBuffer,
-         offset: 0,
-         index: 0)
+      let nVertexBuffer = delegate?.numberOfVertexBuffers() ?? 0
+      for i in 0..<nVertexBuffer {
+         renderEncoder.setVertexBuffer(
+            delegate?.vertexBufferFor(indexAt: i),
+            offset: 0,
+            index: i)
+      }
+      delegate?.setVertexBytesFor(encoder: renderEncoder)
       
       renderEncoder.setFragmentTextures(inputs, range: 0..<inputs.count)
       delegate?.setFragmentBytesFor(encoder: renderEncoder)
-      
+
       renderEncoder.drawIndexedPrimitives(
          type: MTLPrimitiveType.triangle,
-         indexCount: canvas.vertexIndices.count,
+         indexCount: delegate?.indexCount() ?? 0,
          indexType: MTLIndexType.uint16,
-         indexBuffer: canvas.indexBuffer,
+         indexBuffer: delegate!.indexBuffer(),
          indexBufferOffset: 0)
       
       renderEncoder.endEncoding()
@@ -100,5 +99,8 @@ extension Renderer: MTKViewDelegate {
       output = drawable.texture
       commandBuffer.present(drawable)
       commandBuffer.commit()
+      if waitUntilCompleted {
+         commandBuffer.waitUntilCompleted()
+      }
    }
 }
