@@ -149,6 +149,30 @@ open class LvJing: RendererDelegate, ChainableFiltering {
       render.output = nil
       view.releaseDrawables()
    }
+   
+   public func renderIn(pixelBuffer: CVPixelBuffer) {
+      guard let outputTexture = output else {
+         print("outputTexture is nil!!!")
+         return
+      }
+      let ciImageOptions = [
+         CIImageOption.colorSpace: colorspace
+      ]
+      var ciImage: CIImage
+      if #available(iOS 11.0, *) {
+         ciImage = CIImage(
+            mtlTexture: outputTexture,
+            options: ciImageOptions)!
+            .oriented(CGImagePropertyOrientation.downMirrored)
+      } else {
+         ciImage = CIImage(
+            mtlTexture: outputTexture,
+            options: ciImageOptions)!
+            .oriented(forExifOrientation: 4)
+      }
+      context.render(ciImage, to: pixelBuffer)
+      to = nil
+   }
 }
 
 extension LvJing {
@@ -182,79 +206,6 @@ extension LvJing {
 }
 
 // MARK: - Operations
-
-infix operator =>: AdditionPrecedence
-infix operator +>: AdditionPrecedence
-
-extension LvJing {
-   
-   /// Chain two filters together;
-   /// - Parameters:
-   ///   - lhs: Upstream filter;
-   ///   - rhs: Downstream filter;
-   /// - Returns: Downstream filter;
-   @discardableResult
-   public static func +> (lhs: LvJing, rhs: LvJing) -> LvJing {
-      lhs.to = rhs
-      rhs.froms.append(lhs)
-      return rhs
-   }
-   
-   /// Chain input with a filter;
-   /// - Parameters:
-   ///   - lhs: Input placeholder;
-   ///   - rhs: Downstream filter;
-   /// - Returns: Downstream filter;
-   @discardableResult
-   public static func +> (lhs: InputPlaceholder, rhs: LvJing) -> LvJing {
-      lhs.to = rhs
-      rhs.froms.append(lhs)
-      return rhs
-   }
-   
-   /// Chain a source image with a filter;
-   /// - Parameters:
-   ///   - lhs: Source image as input;
-   ///   - rhs: Downstream filter;
-   /// - Returns: Downstream filter;
-   @discardableResult
-   public static func +> (lhs: CGImage, rhs: LvJing) -> LvJing {
-      let placeholder = InputPlaceholder()
-      lhs => placeholder
-      return placeholder +> rhs
-   }
-   
-   /// Draw output of filter into a buffer;
-   /// - Parameters:
-   ///   - lhs: A filter;
-   ///   - rhs: An initialized buffer;
-   public static func => (lhs: LvJing, rhs: CVPixelBuffer) {
-      guard let outputTexture = lhs.output else {
-         print("outputTexture is nil!!!")
-         return
-      }
-      let ciImageOptions = [
-         CIImageOption.colorSpace: lhs.colorspace
-      ]
-      var ciImage: CIImage
-      if #available(iOS 11.0, *) {
-         ciImage = CIImage(
-            mtlTexture: outputTexture,
-            options: ciImageOptions)!
-            .oriented(CGImagePropertyOrientation.downMirrored)
-      } else {
-         ciImage = CIImage(
-            mtlTexture: outputTexture,
-            options: ciImageOptions)!
-            .oriented(forExifOrientation: 4)
-      }
-      lhs.context.render(ciImage, to: rhs)
-      lhs.to = nil
-      #if SDK_DEBUG
-      assert(lhs.to == nil)
-      #endif
-   }
-}
 
 extension MTLClearColor {
    

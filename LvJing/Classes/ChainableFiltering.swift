@@ -38,6 +38,43 @@ public protocol ChainableFiltering: class {
    func clear()
    
    func clearAll()
+   
+   func renderIn(pixelBuffer: CVPixelBuffer)
+}
+
+infix operator =>: AdditionPrecedence
+infix operator +>: AdditionPrecedence
+
+/// Chain two chainable units together;
+/// - Parameters:
+///   - lhs: Upstream unit;
+///   - rhs: Downstream unit;
+/// - Returns: Downstream unit;
+@discardableResult
+public func +> (lhs: ChainableFiltering, rhs: ChainableFiltering) -> ChainableFiltering {
+   lhs.to = rhs
+   rhs.froms.append(lhs)
+   return rhs
+}
+
+/// Chain a source image with a filter;
+/// - Parameters:
+///   - lhs: Source image as input;
+///   - rhs: Downstream filter;
+/// - Returns: Downstream filter;
+@discardableResult
+public func +> (lhs: CGImage, rhs: ChainableFiltering) -> ChainableFiltering {
+   let placeholder = InputPlaceholder()
+   lhs => placeholder
+   return placeholder +> rhs
+}
+
+/// Draw output of unit into a buffer;
+/// - Parameters:
+///   - lhs: An unit;
+///   - rhs: An initialized buffer;
+public func => (lhs: ChainableFiltering, rhs: CVPixelBuffer) {
+   lhs.renderIn(pixelBuffer: rhs)
 }
 
 extension ChainableFiltering {

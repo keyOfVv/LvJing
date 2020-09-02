@@ -44,6 +44,31 @@ public class InputPlaceholder: ChainableFiltering {
       self.output = nil
       self.to = nil
    }
+   
+   public func renderIn(pixelBuffer: CVPixelBuffer) {
+      guard let outputTexture = output else {
+         print("outputTexture is nil!!!")
+         return
+      }
+      let ciImageOptions = [
+         CIImageOption.colorSpace: CGColorSpaceCreateDeviceRGB()
+      ]
+      var ciImage: CIImage
+      if #available(iOS 11.0, *) {
+         ciImage = CIImage(
+            mtlTexture: outputTexture,
+            options: ciImageOptions)!
+            .oriented(CGImagePropertyOrientation.downMirrored)
+      } else {
+         ciImage = CIImage(
+            mtlTexture: outputTexture,
+            options: ciImageOptions)!
+            .oriented(forExifOrientation: 4)
+      }
+      let context = CIContext()
+      context.render(ciImage, to: pixelBuffer)
+      to = nil
+   }
 }
 
 extension InputPlaceholder {
