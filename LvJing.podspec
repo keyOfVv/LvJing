@@ -1,7 +1,7 @@
 
 Pod::Spec.new do |s|
   s.name             = 'LvJing'
-  s.version          = '0.5.alpha.2'
+  s.version          = '0.5'
   s.summary          = 'Filter kernel based on Metal.'
 
   s.description      = <<-DESC
