@@ -1,9 +1,9 @@
 {
   "name": "LvJing",
-  "version": "0.1",
+  "version": "0.5.alpha.2",
   "summary": "Filter kernel based on Metal.",
-  "description": "LvJing is a minimum graphic filter kernel based on Metal, it offers extensible\ninterface and protocol for inheritance and assembling. The architecture is\ninspired by `Metal by Tutorials`(Caroline Begbie & Marius Horga, raywenderlich.com)\nand famous `GPUImage`.\nLvJing merely acts as a carriage delivering Metal Shading Codes, it's your creativity\nand, behind all, mathematics that really shines.\nHave fun.",
-  "homepage": "https://github.com/Ke Yang/LvJing",
+  "description": "LvJing is a minimum graphic filter kernel based on Metal, it offers extensible\ninterface and protocol for inheritance and assembling. The architecture is\ninspired by `Metal by Tutorials`(Caroline Begbie & Marius Horga, raywenderlich.com)\nand famous `GPUImage`.\nLvJing merely acts as a carriage of Metal Shading Codes, it's your creativity\nand, behind all, mathematics that really shines.\nHave fun.",
+  "homepage": "https://github.com/keyOfVv/LvJing",
   "license": {
     "type": "MIT",
     "file": "LICENSE"
@@ -12,8 +12,8 @@
     "Ke Yang": "ofveravi@gmail.com"
   },
   "source": {
-    "git": "https://github.com/Ke Yang/LvJing.git",
-    "tag": "0.1"
+    "git": "https://github.com/keyOfVv/LvJing.git",
+    "tag": "0.5.alpha.2"
   },
   "swift_versions": [
     "5.2"

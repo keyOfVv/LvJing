@@ -50,7 +50,7 @@ struct BinaryTreePreview: View {
    }
    
    private var stepsOfBranchBeta: [String] {
-      return ["Input B", "Rotation pi", "Luminosity"]
+      return ["Input B", "Rotation by pi", "Luminosity"]
    }
    
    var body: some View {
