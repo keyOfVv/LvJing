@@ -100,6 +100,10 @@ open class LvJing: RendererDelegate, ChainableFiltering {
       render.delegate = self
    }
    
+   deinit {
+      removeFromSuperview()
+   }
+   
    open func numberOfVertexBuffers() -> Int {
       return 1
    }
@@ -202,6 +206,17 @@ extension LvJing {
             .SRGB: false
          ]
       }
+   }
+}
+
+extension LvJing {
+   
+   public func addToView(_ view: UIView) {
+      view.addSubview(self.view)
+   }
+   
+   public func removeFromSuperview() {
+      self.view.removeFromSuperview()
    }
 }
 
