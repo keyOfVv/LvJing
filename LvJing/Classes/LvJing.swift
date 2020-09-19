@@ -101,7 +101,7 @@ open class LvJing: RendererDelegate, ChainableFiltering {
    }
    
    deinit {
-      removeFromSuperview()
+//      removeFromSuperview()
    }
    
    open func numberOfVertexBuffers() -> Int {
@@ -156,7 +156,9 @@ open class LvJing: RendererDelegate, ChainableFiltering {
    
    public func renderIn(pixelBuffer: CVPixelBuffer) {
       guard let outputTexture = output else {
+         #if SDK_DEBUG
          print("outputTexture is nil!!!")
+         #endif
          return
       }
       let ciImageOptions = [
